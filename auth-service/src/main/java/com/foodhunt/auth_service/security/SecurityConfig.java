@@ -15,7 +15,8 @@ public class SecurityConfig {
         http
                 .csrf(c->c.disable())
                 .authorizeHttpRequests(auth->
-                        auth.requestMatchers("/public/**").permitAll()
+                        auth.requestMatchers( "/public/**",
+                                        "/auth/**","/foods/**").permitAll()
                                 .anyRequest().authenticated())
                                 .oauth2ResourceServer(outh2->
                                         outh2.jwt(Customizer.withDefaults()));
