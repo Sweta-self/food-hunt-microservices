@@ -11,4 +11,6 @@ public interface FoodSpotService {
     FoodSpotResponse createFoodSpot(FoodSpotRequest request);
     List<FoodSpotResponse> getAllFoodSpots();
     FoodSpotResponse getFoodSpotById(Long id);
+    FoodSpotResponse updateFoodSpot(Long id,FoodSpotRequest request);
+    void deleteFoodSpot(Long id);
 }

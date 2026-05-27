@@ -35,4 +35,17 @@ public class FoodController {
         return foodSpotService.getFoodSpotById(id);
     }
 
+    @PutMapping("/{id}")
+    public FoodSpotResponse updatedFoodSpot(@PathVariable Long id,
+                                            @Valid @RequestBody FoodSpotRequest request){
+        return foodSpotService.updateFoodSpot(id,request);
+    }
+    @DeleteMapping("/{id}")
+    public String deleteFoodSpot(@PathVariable Long id) {
+
+        foodSpotService.deleteFoodSpot(id);
+
+        return "Food spot deleted successfully";
+    }
+
 }

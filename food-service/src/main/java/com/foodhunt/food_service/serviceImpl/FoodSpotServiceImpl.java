@@ -77,4 +77,39 @@ public class FoodSpotServiceImpl implements FoodSpotService {
              .createdAt(foodSpot.getCreatedAt())
              .build();
     }
+
+    @Override
+    public FoodSpotResponse updateFoodSpot(Long id, FoodSpotRequest request) {
+        FoodSpot foodSpot=foodSpotRepository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("Food spot not found"));
+
+       foodSpot.setName(request.getName());
+       foodSpot.setAddress(request.getAddress());
+       foodSpot.setCity(request.getCity());
+       foodSpot.setDescription(request.getDescription());
+       foodSpot.setLatitude(request.getLatitude());
+       foodSpot.setLongitude(request.getLongitude());
+       FoodSpot updatedFoodSpot=foodSpotRepository.save(foodSpot);
+
+       return FoodSpotResponse.builder()
+               .id(updatedFoodSpot.getId())
+               .name(updatedFoodSpot.getName())
+               .address(updatedFoodSpot.getAddress())
+               .city(updatedFoodSpot.getCity())
+               .description(updatedFoodSpot.getDescription())
+               .latitude(updatedFoodSpot.getLatitude())
+               .longitude(updatedFoodSpot.getLongitude())
+               .createdAt(updatedFoodSpot.getCreatedAt())
+               .createdBy(updatedFoodSpot.getCreatedBy())
+               .build();
+    }
+
+    @Override
+    public void deleteFoodSpot(Long id) {
+        FoodSpot foodSpot = foodSpotRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Food spot not found"));
+
+        foodSpotRepository.delete(foodSpot);
+    }
 }
