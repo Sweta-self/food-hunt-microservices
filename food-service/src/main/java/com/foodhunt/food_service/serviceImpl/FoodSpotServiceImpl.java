@@ -3,6 +3,7 @@ package com.foodhunt.food_service.serviceImpl;
 import com.foodhunt.food_service.dto.FoodSpotRequest;
 import com.foodhunt.food_service.dto.FoodSpotResponse;
 import com.foodhunt.food_service.entity.FoodSpot;
+import com.foodhunt.food_service.exception.ResourceNotFoundException;
 import com.foodhunt.food_service.repository.FoodSpotRepository;
 import com.foodhunt.food_service.service.FoodSpotService;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +64,7 @@ public class FoodSpotServiceImpl implements FoodSpotService {
     @Override
     public FoodSpotResponse getFoodSpotById(Long id) {
      FoodSpot foodSpot=foodSpotRepository.findById(id)
-             .orElseThrow(()->new RuntimeException("Food spot not found"));
+             .orElseThrow(()->new ResourceNotFoundException("Food spot not found"));
      return FoodSpotResponse.builder()
              .id(foodSpot.getId())
              .name(foodSpot.getName())
