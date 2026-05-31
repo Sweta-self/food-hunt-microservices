@@ -6,6 +6,8 @@ import com.foodhunt.food_service.service.FoodSpotService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +24,12 @@ public class FoodController {
     }
 
     @PostMapping("/createfoodspot")
-    public FoodSpotResponse createFoodSpotController( @Valid @RequestBody FoodSpotRequest request){
-        return foodSpotService.createFoodSpot(request);
+    public FoodSpotResponse createFoodSpotController(@Valid @RequestBody FoodSpotRequest request,
+                                                     @AuthenticationPrincipal Jwt jwt){
+
+        String email= jwt.getClaimAsString("email");
+        System.out.println(email);
+        return foodSpotService.createFoodSpot(request,email);
     }
 
     @GetMapping("/getAll")

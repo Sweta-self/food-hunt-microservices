@@ -13,10 +13,19 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-
     show-sql: true
+
+  security:
+    oauth2:
+      resource server:
+        jwt:
+          issuer-uri: https://dev-acun87tlm2zqnkn3.us.auth0.com/
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+logging:
+  level:
+    org.springframework.security: TRACE

@@ -21,7 +21,7 @@ public class FoodSpotServiceImpl implements FoodSpotService {
 
     private final FoodSpotRepository foodSpotRepository;
     @Override
-    public FoodSpotResponse createFoodSpot(FoodSpotRequest request) {
+    public FoodSpotResponse createFoodSpot(FoodSpotRequest request,String createdBy) {
 
         FoodSpot foodSpot=new FoodSpot();
         foodSpot.setName(request.getName());
@@ -31,7 +31,7 @@ public class FoodSpotServiceImpl implements FoodSpotService {
         foodSpot.setLatitude(request.getLatitude());
         foodSpot.setLongitude(request.getLongitude());
 
-        foodSpot.setCreatedBy("Sweta");
+        foodSpot.setCreatedBy(createdBy);
         FoodSpot savedFoodSpot=foodSpotRepository.save(foodSpot);
 
         return FoodSpotResponse.builder()

@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface FoodSpotService {
 
-    FoodSpotResponse createFoodSpot(FoodSpotRequest request);
+    FoodSpotResponse createFoodSpot(FoodSpotRequest request,String createdBy);
     Page<FoodSpotResponse> getAllFoodSpots(int page,int size,String sortBy,String direction);
     FoodSpotResponse getFoodSpotById(Long id);
     FoodSpotResponse updateFoodSpot(Long id,FoodSpotRequest request);
