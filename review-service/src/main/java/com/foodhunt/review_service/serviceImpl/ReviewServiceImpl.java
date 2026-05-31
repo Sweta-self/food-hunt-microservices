@@ -1,0 +1,69 @@
+package com.foodhunt.review_service.serviceImpl;
+
+import com.foodhunt.review_service.dto.CreateReviewRequest;
+import com.foodhunt.review_service.dto.ReviewResponse;
+import com.foodhunt.review_service.entity.Review;
+import com.foodhunt.review_service.repository.ReviewRepository;
+import com.foodhunt.review_service.service.ReviewService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ReviewServiceImpl implements ReviewService {
+
+    private final ReviewRepository reviewRepository;
+    @Override
+    public ReviewResponse createReview(CreateReviewRequest request, String userId, String email) {
+      Review review= new Review();
+      review.setFoodSpotId(request.getFoodSpotId());
+      review.setRating(request.getRating());
+      review.setComment(request.getComment());
+      review.setUserId(userId);
+      review.setUserEmail(email);
+      Review savedReview= reviewRepository.save(review);
+      return ReviewResponse.builder()
+              .id(savedReview.getId())
+              .foodSpotId(savedReview.getFoodSpotId())
+              .rating(savedReview.getRating())
+              .comment(savedReview.getComment())
+              .userId(savedReview.getUserId())
+              .userEmail(savedReview.getUserEmail())
+              .createdAt(savedReview.getCreatedAt())
+              .build();
+    }
+
+        @Override
+        public List<ReviewResponse> getReviewsByFoodSpotId(Long foodSpotId) {
+
+            List<Review> reviews = reviewRepository.findByFoodSpotId(foodSpotId);
+
+            return reviews.stream()
+                    .map(review -> ReviewResponse.builder()
+                            .id(review.getId())
+                            .foodSpotId(review.getFoodSpotId())
+                            .userId(review.getUserId())
+                            .userEmail(review.getUserEmail())
+                            .rating(review.getRating())
+                            .comment(review.getComment())
+                            .createdAt(review.getCreatedAt())
+                            .build())
+                    .toList();
+
+       }
+
+    @Override
+    public Double getAverageRatingByFoodSpotId(Long foodSpotId) {
+        List<Review> reviews = reviewRepository.findByFoodSpotId(foodSpotId);
+
+        if (reviews.isEmpty()) {
+            return 0.0;
+        }
+        return reviews.stream()
+                .mapToInt(Review::getRating)
+                .average()
+                .orElse(0.0);
+    }
+}

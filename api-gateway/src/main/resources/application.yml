@@ -20,6 +20,11 @@ spring:
               predicates:
                 - Path=/foods/**
 
+            - id: review-service
+              uri: lb://REVIEW-SERVICE
+              predicates:
+                - Path=/reviews/**
+
 management:
   endpoints:
     web:
