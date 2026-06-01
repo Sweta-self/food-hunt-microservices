@@ -25,6 +25,11 @@ spring:
               predicates:
                 - Path=/reviews/**
 
+            - id: favorite-service
+              uri: lb://FAVORITE-SERVICE
+              predicates:
+                - Path=/favorites/**
+
 management:
   endpoints:
     web:
