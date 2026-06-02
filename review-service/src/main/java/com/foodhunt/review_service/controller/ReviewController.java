@@ -2,6 +2,7 @@ package com.foodhunt.review_service.controller;
 
 import com.foodhunt.review_service.dto.CreateReviewRequest;
 import com.foodhunt.review_service.dto.ReviewResponse;
+import com.foodhunt.review_service.dto.ReviewSummaryResponse;
 import com.foodhunt.review_service.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +40,12 @@ public class ReviewController {
             @PathVariable Long foodSpotId
     ) {
         return reviewService.getAverageRatingByFoodSpotId(foodSpotId);
+    }
+
+    @GetMapping("/food/{foodSpotId}/summary")
+    public ReviewSummaryResponse getReviewSummary(
+            @PathVariable long foodSpotId
+    ){
+        return reviewService.getReviewSummary(foodSpotId);
     }
 }

@@ -18,4 +18,10 @@ public class FavoriteResponse {
     private String userEmail;
 
     private LocalDateTime createdAt;
+
+    private String foodSpotName;
+
+    private String foodSpotCity;
+
+    private String foodSpotAddress;
 }

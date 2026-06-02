@@ -2,10 +2,13 @@ package com.foodhunt.food_service.serviceImpl;
 
 import com.foodhunt.food_service.dto.FoodSpotRequest;
 import com.foodhunt.food_service.dto.FoodSpotResponse;
+import com.foodhunt.food_service.dto.ReviewSummaryResponse;
 import com.foodhunt.food_service.entity.FoodSpot;
 import com.foodhunt.food_service.exception.ResourceNotFoundException;
+import com.foodhunt.food_service.openFeign.ReviewClient;
 import com.foodhunt.food_service.repository.FoodSpotRepository;
 import com.foodhunt.food_service.service.FoodSpotService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +23,8 @@ import java.util.List;
 public class FoodSpotServiceImpl implements FoodSpotService {
 
     private final FoodSpotRepository foodSpotRepository;
+    private final ReviewClient reviewClient;
+
     @Override
     public FoodSpotResponse createFoodSpot(FoodSpotRequest request,String createdBy) {
 
@@ -74,22 +79,42 @@ public class FoodSpotServiceImpl implements FoodSpotService {
     }
 
     @Override
+    @CircuitBreaker(name="reviewService",fallbackMethod = "reviewServiceFallback")
     public FoodSpotResponse getFoodSpotById(Long id) {
      FoodSpot foodSpot=foodSpotRepository.findById(id)
              .orElseThrow(()->new ResourceNotFoundException("Food spot not found"));
-     return FoodSpotResponse.builder()
-             .id(foodSpot.getId())
-             .name(foodSpot.getName())
-             .description(foodSpot.getDescription())
-             .address(foodSpot.getAddress())
-             .city(foodSpot.getCity())
-             .longitude(foodSpot.getLongitude())
-             .latitude(foodSpot.getLatitude())
-             .createdBy(foodSpot.getCreatedBy())
-             .createdAt(foodSpot.getCreatedAt())
-             .build();
-    }
 
+        ReviewSummaryResponse summary =
+                reviewClient.getReviewSummary(id);
+
+        return buildFoodSpotResponse(foodSpot, summary);
+    }
+public FoodSpotResponse reviewServiceFallback(Long id,Throwable ex){
+        FoodSpot foodSpot=foodSpotRepository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("Food spot not found"));
+        ReviewSummaryResponse summary=new ReviewSummaryResponse();
+        summary.setAverageRating(0.0);
+        summary.setTotalReviews(0L);
+         return buildFoodSpotResponse(foodSpot, summary);
+}
+    private FoodSpotResponse buildFoodSpotResponse(
+            FoodSpot foodSpot,
+            ReviewSummaryResponse summary
+    ) {
+        return FoodSpotResponse.builder()
+                .id(foodSpot.getId())
+                .name(foodSpot.getName())
+                .description(foodSpot.getDescription())
+                .address(foodSpot.getAddress())
+                .city(foodSpot.getCity())
+                .latitude(foodSpot.getLatitude())
+                .longitude(foodSpot.getLongitude())
+                .createdAt(foodSpot.getCreatedAt())
+                .createdBy(foodSpot.getCreatedBy())
+                .averageRating(summary.getAverageRating())
+                .totalReviews(summary.getTotalReviews())
+                .build();
+    }
     @Override
     public FoodSpotResponse updateFoodSpot(Long id, FoodSpotRequest request) {
         FoodSpot foodSpot=foodSpotRepository.findById(id)

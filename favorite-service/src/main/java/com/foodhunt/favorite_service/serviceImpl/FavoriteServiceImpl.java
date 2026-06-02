@@ -1,9 +1,11 @@
 package com.foodhunt.favorite_service.serviceImpl;
 
 import com.foodhunt.favorite_service.dto.FavoriteResponse;
+import com.foodhunt.favorite_service.dto.FoodResponse;
 import com.foodhunt.favorite_service.entity.Favorite;
 import com.foodhunt.favorite_service.exception.FavoriteAlreadyExistsException;
 import com.foodhunt.favorite_service.exception.ResourceNotFoundException;
+import com.foodhunt.favorite_service.openFeign.FoodClient;
 import com.foodhunt.favorite_service.repository.FavoriteRepository;
 import com.foodhunt.favorite_service.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import java.util.List;
 public class FavoriteServiceImpl implements FavoriteService {
 
     private final FavoriteRepository favoriteRepository;
+    private final FoodClient foodClient;
 
     @Override
     public FavoriteResponse addFavorite(
@@ -59,13 +62,18 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     private FavoriteResponse mapToResponse(Favorite favorite) {
+        FoodResponse food = foodClient.getFoodById(favorite.getFoodSpotId());
 
         return FavoriteResponse.builder()
                 .id(favorite.getId())
                 .foodSpotId(favorite.getFoodSpotId())
+                .foodSpotName(food.getName())
+                .foodSpotCity(food.getCity())
+                .foodSpotAddress(food.getAddress())
                 .userId(favorite.getUserId())
                 .userEmail(favorite.getUserEmail())
                 .createdAt(favorite.getCreatedAt())
                 .build();
+
     }
 }
