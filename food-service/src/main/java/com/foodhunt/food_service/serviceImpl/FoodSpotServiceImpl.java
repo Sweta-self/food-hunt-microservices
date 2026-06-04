@@ -9,6 +9,7 @@ import com.foodhunt.food_service.openFeign.ReviewClient;
 import com.foodhunt.food_service.repository.FoodSpotRepository;
 import com.foodhunt.food_service.service.FoodSpotService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -79,8 +80,10 @@ public class FoodSpotServiceImpl implements FoodSpotService {
     }
 
     @Override
+    @Retry(name = "reviewService")
     @CircuitBreaker(name="reviewService",fallbackMethod = "reviewServiceFallback")
     public FoodSpotResponse getFoodSpotById(Long id) {
+        System.out.println("Calling Review Service...");
      FoodSpot foodSpot=foodSpotRepository.findById(id)
              .orElseThrow(()->new ResourceNotFoundException("Food spot not found"));
 
@@ -89,7 +92,10 @@ public class FoodSpotServiceImpl implements FoodSpotService {
 
         return buildFoodSpotResponse(foodSpot, summary);
     }
+
 public FoodSpotResponse reviewServiceFallback(Long id,Throwable ex){
+
+    System.out.println("Circuit Breaker Fallback Executed");
         FoodSpot foodSpot=foodSpotRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Food spot not found"));
         ReviewSummaryResponse summary=new ReviewSummaryResponse();
