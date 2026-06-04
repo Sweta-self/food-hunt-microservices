@@ -64,19 +64,25 @@ public class FoodSpotServiceImpl implements FoodSpotService {
         Page<FoodSpot>foodSpots = foodSpotRepository.findAll(pageable);
 
         return foodSpots
-                .map(f->FoodSpotResponse.builder()
-                        .id(f.getId())
-                        .name(f.getName())
-                        .address(f.getAddress())
-                        .description(f.getDescription())
-                        .address(f.getAddress())
-                        .city(f.getCity())
-                        .latitude(f.getLatitude())
-                        .longitude(f.getLongitude())
-                        .createdAt(f.getCreatedAt())
-                        .createdBy(f.getCreatedBy())
-                        .build()
-                );
+                .map(f-> {
+                    ReviewSummaryResponse summary =
+                            reviewClient.getReviewSummary(f.getId());
+
+                    return FoodSpotResponse.builder()
+                            .id(f.getId())
+                            .name(f.getName())
+                            .address(f.getAddress())
+                            .description(f.getDescription())
+                            .address(f.getAddress())
+                            .city(f.getCity())
+                            .latitude(f.getLatitude())
+                            .longitude(f.getLongitude())
+                            .createdAt(f.getCreatedAt())
+                            .createdBy(f.getCreatedBy())
+                            .averageRating(summary.getAverageRating())
+                            .totalReviews(summary.getTotalReviews())
+                            .build();
+                });
     }
 
     @Override
