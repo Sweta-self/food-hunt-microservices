@@ -1,5 +1,6 @@
 package com.foodhunt.review_service.serviceImpl;
 
+import com.foodhunt.review_service.dto.BatchReviewSummaryResponse;
 import com.foodhunt.review_service.dto.CreateReviewRequest;
 import com.foodhunt.review_service.dto.ReviewResponse;
 import com.foodhunt.review_service.dto.ReviewSummaryResponse;
@@ -86,4 +87,32 @@ public class ReviewServiceImpl implements ReviewService {
                 (long) reviews.size());
 
     }
+
+    @Override
+    public List<BatchReviewSummaryResponse> getBatchReviewSummary(List<Long> foodSpotIds) {
+        return foodSpotIds.stream()
+                .map(
+                id->{
+                    List<Review>reviews=reviewRepository.findByFoodSpotId(id);
+                    if(reviews.isEmpty()){
+                        return new BatchReviewSummaryResponse(
+                                id,
+                                0.0,
+                                0L
+                        );
+                    }
+                    double averageRating=reviews.stream()
+                            .mapToInt(Review::getRating)
+                            .average()
+                            .orElse(0.0);
+
+                    return new BatchReviewSummaryResponse(
+                            id,
+                            averageRating,
+                            (long)reviews.size()
+                    );
+                }).toList();
+
+    }
+
 }

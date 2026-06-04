@@ -1,5 +1,6 @@
 package com.foodhunt.food_service.serviceImpl;
 
+import com.foodhunt.food_service.dto.BatchReviewSummaryResponse;
 import com.foodhunt.food_service.dto.FoodSpotRequest;
 import com.foodhunt.food_service.dto.FoodSpotResponse;
 import com.foodhunt.food_service.dto.ReviewSummaryResponse;
@@ -18,6 +19,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,10 +66,34 @@ public class FoodSpotServiceImpl implements FoodSpotService {
         Pageable pageable= PageRequest.of(page,size,sort);
         Page<FoodSpot>foodSpots = foodSpotRepository.findAll(pageable);
 
-        return foodSpots
-                .map(f-> {
-                    ReviewSummaryResponse summary =
-                            reviewClient.getReviewSummary(f.getId());
+        List<Long>foodSpotIds=foodSpots.getContent()
+                .stream()
+                .map(FoodSpot::getId)
+                .toList();
+
+        List<BatchReviewSummaryResponse> summaries=reviewClient.getBatchReviewSummary(foodSpotIds);
+
+        Map<Long,BatchReviewSummaryResponse>summaryMap=
+                summaries.stream()
+                        .collect(Collectors.toMap(
+                                BatchReviewSummaryResponse::getFoodSpotId,
+                                summary->summary
+                        ));
+
+        return foodSpots.map(f->{
+
+            BatchReviewSummaryResponse summary=
+                    summaryMap.getOrDefault(
+                            f.getId(),
+                            new BatchReviewSummaryResponse()
+                    );
+            Double averageRating = summary.getAverageRating() != null
+                    ? summary.getAverageRating()
+                    : 0.0;
+
+            Long totalReviews = summary.getTotalReviews() != null
+                    ? summary.getTotalReviews()
+                    : 0L;
 
                     return FoodSpotResponse.builder()
                             .id(f.getId())
@@ -79,8 +106,8 @@ public class FoodSpotServiceImpl implements FoodSpotService {
                             .longitude(f.getLongitude())
                             .createdAt(f.getCreatedAt())
                             .createdBy(f.getCreatedBy())
-                            .averageRating(summary.getAverageRating())
-                            .totalReviews(summary.getTotalReviews())
+                            .averageRating(averageRating)
+                            .totalReviews(totalReviews)
                             .build();
                 });
     }
@@ -182,4 +209,6 @@ public FoodSpotResponse reviewServiceFallback(Long id,Throwable ex){
 
 
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.foodhunt.review_service.service;
 
+import com.foodhunt.review_service.dto.BatchReviewSummaryResponse;
 import com.foodhunt.review_service.dto.CreateReviewRequest;
 import com.foodhunt.review_service.dto.ReviewResponse;
 import com.foodhunt.review_service.dto.ReviewSummaryResponse;
@@ -14,4 +15,5 @@ public interface ReviewService {
     List<ReviewResponse> getReviewsByFoodSpotId(Long foodSpotId);
     Double getAverageRatingByFoodSpotId(Long foodSpotId);
     ReviewSummaryResponse getReviewSummary(Long foodSpotId);
+    List<BatchReviewSummaryResponse> getBatchReviewSummary(List<Long> foodSpotIds);
 }

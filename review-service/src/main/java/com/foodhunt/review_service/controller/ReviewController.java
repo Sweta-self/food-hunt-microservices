@@ -1,5 +1,6 @@
 package com.foodhunt.review_service.controller;
 
+import com.foodhunt.review_service.dto.BatchReviewSummaryResponse;
 import com.foodhunt.review_service.dto.CreateReviewRequest;
 import com.foodhunt.review_service.dto.ReviewResponse;
 import com.foodhunt.review_service.dto.ReviewSummaryResponse;
@@ -47,5 +48,11 @@ public class ReviewController {
             @PathVariable long foodSpotId
     ){
         return reviewService.getReviewSummary(foodSpotId);
+    }
+    @GetMapping("/summary/batch")
+    public List<BatchReviewSummaryResponse> getBatchReviewSummary(
+            @RequestParam List<Long> foodSpotIds
+    ) {
+        return reviewService.getBatchReviewSummary(foodSpotIds);
     }
 }
