@@ -10,7 +10,10 @@ import com.foodhunt.review_service.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -90,18 +93,31 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public List<BatchReviewSummaryResponse> getBatchReviewSummary(List<Long> foodSpotIds) {
+
+        List<Review> reviews =
+                reviewRepository.findByFoodSpotIdIn(foodSpotIds);
+
+        Map<Long,List<Review>> reviewMap=reviews.stream()
+                .collect(Collectors.groupingBy(
+                        Review::getFoodSpotId
+                ));
+
+
+
         return foodSpotIds.stream()
                 .map(
                 id->{
-                    List<Review>reviews=reviewRepository.findByFoodSpotId(id);
-                    if(reviews.isEmpty()){
+                   List<Review>foodSpotReviews=reviewMap.getOrDefault(
+                           id, Collections.emptyList()
+                   );
+                    if(foodSpotReviews.isEmpty()){
                         return new BatchReviewSummaryResponse(
                                 id,
                                 0.0,
                                 0L
                         );
                     }
-                    double averageRating=reviews.stream()
+                    double averageRating=foodSpotReviews.stream()
                             .mapToInt(Review::getRating)
                             .average()
                             .orElse(0.0);
@@ -109,7 +125,7 @@ public class ReviewServiceImpl implements ReviewService {
                     return new BatchReviewSummaryResponse(
                             id,
                             averageRating,
-                            (long)reviews.size()
+                            (long)foodSpotReviews.size()
                     );
                 }).toList();
 
