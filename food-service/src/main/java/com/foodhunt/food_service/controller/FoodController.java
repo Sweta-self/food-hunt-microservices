@@ -5,6 +5,8 @@ import com.foodhunt.food_service.dto.FoodSpotResponse;
 import com.foodhunt.food_service.service.FoodSpotService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -18,6 +20,8 @@ import java.util.List;
 public class FoodController {
 
     private final FoodSpotService foodSpotService;
+    private final CacheManager cacheManager;
+
     @GetMapping("/test")
     public String test(){
         return "Food Service Working";
@@ -72,6 +76,17 @@ public class FoodController {
                 page,
                 size
         );
+    }
+    @DeleteMapping("/cache/review-summary")
+    public String clearReviewSummaryCache() {
+        Cache cache = cacheManager.getCache("reviewSummary");
+
+        if (cache != null) {
+            cache.clear();
+            return "Review summary cache cleared";
+        }
+
+        return "Review summary cache not found";
     }
 
 }

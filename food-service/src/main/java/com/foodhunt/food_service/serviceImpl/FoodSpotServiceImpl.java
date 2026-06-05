@@ -28,6 +28,7 @@ public class FoodSpotServiceImpl implements FoodSpotService {
 
     private final FoodSpotRepository foodSpotRepository;
     private final ReviewClient reviewClient;
+    private final ReviewSummaryCacheService reviewSummaryCacheService;
 
     @Override
     public FoodSpotResponse createFoodSpot(FoodSpotRequest request,String createdBy) {
@@ -71,7 +72,8 @@ public class FoodSpotServiceImpl implements FoodSpotService {
                 .map(FoodSpot::getId)
                 .toList();
 
-        List<BatchReviewSummaryResponse> summaries=reviewClient.getBatchReviewSummary(foodSpotIds);
+        List<BatchReviewSummaryResponse> summaries=
+                reviewSummaryCacheService.getBatchReviewSummary(foodSpotIds);
 
         Map<Long,BatchReviewSummaryResponse>summaryMap=
                 summaries.stream()
