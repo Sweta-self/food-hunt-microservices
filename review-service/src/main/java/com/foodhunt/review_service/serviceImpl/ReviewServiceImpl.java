@@ -8,6 +8,8 @@ import com.foodhunt.review_service.entity.Review;
 import com.foodhunt.review_service.repository.ReviewRepository;
 import com.foodhunt.review_service.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -21,6 +23,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     @Override
+    @CacheEvict(value="reviewSummary",key="#request.foodSpotId")
     public ReviewResponse createReview(CreateReviewRequest request, String userId, String email) {
       Review review= new Review();
       review.setFoodSpotId(request.getFoodSpotId());
@@ -73,7 +76,9 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Cacheable(value="reviewSummary",key="#foodSpotId")
     public ReviewSummaryResponse getReviewSummary(Long foodSpotId) {
+        System.out.println("DB HIT / actual logic called for foodSpotId: " + foodSpotId);
         List<Review> reviews = reviewRepository.findByFoodSpotId(foodSpotId);
 
         if (reviews.isEmpty()) {
