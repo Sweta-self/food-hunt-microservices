@@ -2,14 +2,14 @@ package com.foodhunt.review_service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
+
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
-public class ReviewSummaryResponse implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class ReviewSummaryResponse {
 
     private Double averageRating;
     private Long totalReviews;
