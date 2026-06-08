@@ -1,0 +1,69 @@
+services:
+  eureka-server:
+    image: foodhunt-eureka-server
+    container_name: foodhunt-eureka-service
+    ports:
+      - "8761:8761"
+    networks:
+      - foodhunt-network
+
+  api-gateway:
+    image: foodhunt-api-gateway
+    container_name: foodhunt-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://foodhunt-eureka-service:8761/eureka
+    networks:
+      - foodhunt-network
+
+  food-service:
+    image: foodhunt-food-service
+    container_name: foodhunt-food-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://foodhunt-eureka-service:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/food_hunt
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      - foodhunt-network
+
+  review-service:
+    image: foodhunt-review-service
+    container_name: foodhunt-review-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://foodhunt-eureka-service:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/food_hunt
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      - foodhunt-network
+
+  favorite-service:
+    image: foodhunt-favorite-service
+    container_name: foodhunt-favorite-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://foodhunt-eureka-service:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/food_hunt
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      - foodhunt-network
+
+networks:
+  foodhunt-network:
+    driver: bridge
