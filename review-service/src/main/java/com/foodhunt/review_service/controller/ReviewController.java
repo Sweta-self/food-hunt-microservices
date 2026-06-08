@@ -7,6 +7,9 @@ import com.foodhunt.review_service.dto.ReviewSummaryResponse;
 import com.foodhunt.review_service.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +22,22 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    @Autowired
+    private CacheManager cacheManager;
 
+    private final StringRedisTemplate redisTemplate;
+
+    @GetMapping("/debug/redis-set")
+    public String setRedisKey() {
+        System.out.println("DEBUG: redis-set endpoint hit");
+        redisTemplate.opsForValue().set("testKey", "hello");
+        System.out.println("DEBUG: redis set done");
+        return "saved";
+    }
+    @GetMapping("/cache/type")
+    public String cacheType() {
+        return cacheManager.getClass().getName();
+    }
     @PostMapping
     public ReviewResponse createReviews(
             @Valid @RequestBody CreateReviewRequest request,

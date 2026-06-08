@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
@@ -23,8 +24,13 @@ public class RedisConfig {
                 "reviewSummary",
                 RedisCacheConfiguration.defaultCacheConfig()
                         .entryTtl(Duration.ofMinutes(10))
+                        .serializeKeysWith(
+                                RedisSerializationContext.SerializationPair
+                                        .fromSerializer(StringRedisSerializer.UTF_8)
+                        )
                         .serializeValuesWith(
-                                RedisSerializationContext.SerializationPair.fromSerializer(serializer)
+                                RedisSerializationContext.SerializationPair
+                                        .fromSerializer(serializer)
                         )
         );
     }
